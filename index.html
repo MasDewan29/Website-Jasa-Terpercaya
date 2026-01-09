@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id" x-data="luxoraApp()" :class="{ 'dark': isDark }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROFESSIONAL SERVICES | Premium Excellence</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#0F172A',
+                        accent: '#D4AF37',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        /* Smooth Scroll */
+        html { scroll-behavior: smooth; }
+
+        /* Glassmorphism */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-nav {
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        /* Premium Card */
+        .service-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark .service-card {
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1);
+        }
+
+        /* Custom Loading */
+        @keyframes lineProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        .loading-bar { animation: lineProgress 2s ease-in-out forwards; }
+
+        /* CTA Glow */
+        .cta-glow:hover {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased font-sans">
+
+    <div x-show="isLoading" x-transition.opacity.duration.500ms class="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center">
+        <div class="w-48 h-[2px] bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-accent loading-bar"></div>
+        </div>
+        <p class="mt-4 text-[10px] tracking-[0.4em] text-slate-500 uppercase font-bold">Initializing Excellence</p>
+    </div>
+
+    <div x-show="!isLoggedIn" class="fixed inset-0 z-[90] bg-slate-100 dark:bg-slate-950 flex items-center justify-center p-6">
+        <div class="w-full max-w-md bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200 dark:shadow-none border border-slate-100 dark:border-slate-800">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-halved text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold tracking-tight">Portal Akses Jasa</h2>
+                <p class="text-slate-500 text-sm mt-2">Silakan login untuk melihat katalog layanan.</p>
+            </div>
+
+            <div class="space-y-4">
+                <input type="text" x-model="loginName" placeholder="Nama Anda" class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-accent/50 outline-none transition">
+                
+                <label class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 cursor-pointer border border-transparent hover:border-accent/30 transition">
+                    <input type="checkbox" x-model="captcha" class="w-5 h-5 accent-accent">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Saya bukan robot</span>
+                </label>
+
+                <button @click="handleLogin" class="w-full py-4 bg-slate-900 dark:bg-accent text-white dark:text-slate-900 font-bold rounded-2xl transition-all active:scale-95 disabled:opacity-50" :disabled="!loginName || !captcha">
+                    Masuk Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="isLoggedIn && !isLoading" x-cloak>
+        
+        <nav :class="isScrolled ? 'glass-nav py-4 shadow-sm' : 'py-6 bg-transparent'" 
+             class="fixed top-0 w-full z-50 transition-all duration-300 px-6 md:px-16">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl font-black tracking-tighter uppercase italic">Pro<span class="text-accent">Elite</span></span>
+                </div>
+
+                <div class="hidden lg:flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                    <a href="#home" class="hover:text-accent transition">Beranda</a>
+                    <a href="#services" class="hover:text-accent transition">Layanan</a>
+                    <a href="#pricing" class="hover:text-accent transition">Harga</a>
+                    <a href="#portfolio" class="hover:text-accent transition">Portofolio</a>
+                    <a href="#contact" class="hover:text-accent transition">Kontak</a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button @click="isDark = !isDark" class="p-2 text-slate-400 hover:text-accent transition">
+                        <i class="fas" :class="isDark ? 'fa-sun' : 'fa-moon'"></i>
+                    </button>
+                    <a href="#contact" class="hidden md:block px-6 py-2.5 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-full text-[10px] font-extrabold uppercase tracking-widest cta-glow transition">
+                        Konsultasi Gratis
+                    </a>
+                    <button @click="mobileMenu = true" class="lg:hidden text-xl"><i class="fas fa-bars-staggered"></i></button>
+                </div>
+            </div>
+        </nav>
+
+        <div x-show="mobileMenu" x-transition.opacity class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-xl lg:hidden">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-12">
+                    <span class="text-xl font-bold text-white tracking-tighter uppercase">ProElite</span>
+                    <button @click="mobileMenu = false" class="text-white text-3xl">&times;</button>
+                </div>
+                <div class="flex flex-col gap-6 text-2xl font-bold text-white/70">
+                    <a @click="mobileMenu = false" href="#home">Beranda</a>
+                    <a @click="mobileMenu = false" href="#services">Layanan</a>
+                    <a @click="mobileMenu = false" href="#pricing">Harga</a>
+                    <a @click="mobileMenu = false" href="#contact">Kontak</a>
+                </div>
+                <div class="mt-12">
+                    <button class="w-full py-4 bg-accent text-slate-900 rounded-2xl font-bold">Pesan Sekarang</button>
+                </div>
+            </div>
+        </div>
+
+        <section id="home" class="relative pt-48 pb-32 px-6 overflow-hidden">
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+                <div data-aos="fade-right">
+                    <span class="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-[10px] font-bold uppercase tracking-[0.2em] mb-6">
+                        Trusted Professional Partner
+                    </span>
+                    <h1 class="text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-8">
+                        Solusi Profesional <br> <span class="text-accent underline decoration-slate-300">Tanpa Kompromi.</span>
+                    </h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-lg leading-relaxed mb-10 max-w-lg">
+                        Membantu bisnis dan individu mencapai hasil maksimal melalui layanan ahli di berbagai bidang. Cepat, tepat, dan bergaransi kualitas.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#services" class="px-8 py-4 bg-accent text-slate-900 font-bold rounded-2xl shadow-xl shadow-accent/20 hover:scale-105 transition active:scale-95">Lihat Layanan</a>
+                        <a href="#contact" class="px-8 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-white font-bold rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition">Hubungi Kami</a>
+                    </div>
+                </div>
+                <div class="relative" data-aos="zoom-in">
+                    <div class="absolute -top-10 -left-10 w-40 h-40 bg-accent/20 rounded-full blur-3xl"></div>
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80" class="rounded-[3rem] shadow-2xl relative z-10">
+                    <div class="absolute -bottom-6 -right-6 bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-xl z-20 hidden md:block border border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Proyek Selesai</p>
+                                <p class="text-xl font-black">1,250+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="py-32 px-6 bg-white dark:bg-slate-900/50">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20" data-aos="fade-up">
+                    <h2 class="text-4xl font-black mb-4 tracking-tight">Layanan Unggulan Kami</h2>
+                    <p class="text-slate-500">Kami menyediakan tenaga ahli untuk semua kebutuhan jasa Anda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="service-card p-10 bg-white dark:bg-slate-800 rounded-[2.5rem]" data-aos="fade-up" data-aos-delay="100">
+                        <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-6">
+                            <i class="fas fa-code text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">IT & Development</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed mb-8">Pembuatan website, aplikasi mobile, dan sistem kustom untuk efisiensi bisnis Anda.</p>
+                        <a href="https://wa.me/6282125156854" class="text-accent text-xs font-black uppercase tracking-widest hover:gap-3 flex items-center gap-2 transition-all">Pesan Jasa <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="service-card p-10 bg-white dark:bg-slate-800 rounded-[2.5rem]" data-aos="fade-up" data-aos-delay="200">
+                        <div class="w-14 h-14 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                            <i class="fas fa-pen-nib text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Creative Design</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed mb-8">Desain logo, branding, hingga konten media sosial yang menarik dan berkelas.</p>
+                        <a href="https://wa.me/6282125156854" class="text-accent text-xs font-black uppercase tracking-widest hover:gap-3 flex items-center gap-2 transition-all">Pesan Jasa <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="service-card p-10 bg-white dark:bg-slate-800 rounded-[2.5rem]" data-aos="fade-up" data-aos-delay="300">
+                        <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-6">
+                            <i class="fas fa-user-tie text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Professional Consulting</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed mb-8">Bimbingan strategi bisnis, keuangan, dan legalitas oleh pakar industri.</p>
+                        <a href="https://wa.me/6282125156854" class="text-accent text-xs font-black uppercase tracking-widest hover:gap-3 flex items-center gap-2 transition-all">Pesan Jasa <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="py-32 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20">
+                    <h2 class="text-4xl font-black mb-4 tracking-tight text-gradient">Paket Investasi</h2>
+                    <p class="text-slate-500">Transparansi harga untuk kualitas terbaik.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="p-10 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-accent transition group" data-aos="zoom-in">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Lite Solution</p>
+                        <div class="text-4xl font-black mb-8">Rp 500rb<span class="text-sm font-normal text-slate-400 italic">/mulai</span></div>
+                        <ul class="space-y-4 mb-10 text-sm text-slate-500">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> Pengerjaan 3-5 Hari</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 1x Revisi</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> File Master</li>
+                        </ul>
+                        <button class="w-full py-4 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold group-hover:bg-accent group-hover:text-slate-900 transition">Pilih Paket</button>
+                    </div>
+                    <div class="p-10 rounded-[2.5rem] bg-slate-900 text-white relative overflow-hidden scale-105 shadow-2xl" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="absolute top-0 right-0 bg-accent text-slate-900 px-4 py-2 text-[10px] font-black uppercase">Terpopuler</div>
+                        <p class="text-slate-400 text-[10px] font-bold tracking-widest uppercase mb-4">Scale Up</p>
+                        <div class="text-4xl font-black mb-8 text-accent">Rp 2.5jt<span class="text-sm font-normal text-slate-400 italic">/mulai</span></div>
+                        <ul class="space-y-4 mb-10 text-sm text-slate-400">
+                            <li><i class="fas fa-check text-accent mr-2"></i> Pengerjaan Prioritas</li>
+                            <li><i class="fas fa-check text-accent mr-2"></i> Unlimited Revisi</li>
+                            <li><i class="fas fa-check text-accent mr-2"></i> Konsultasi Eksklusif</li>
+                        </ul>
+                        <button class="w-full py-4 bg-accent text-slate-900 rounded-2xl font-bold hover:scale-105 transition">Mulai Sekarang</button>
+                    </div>
+                    <div class="p-10 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800" data-aos="zoom-in" data-aos-delay="300">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Custom</p>
+                        <div class="text-4xl font-black mb-8">Hubungi</div>
+                        <ul class="space-y-4 mb-10 text-sm text-slate-500">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> Tim Khusus (Dedicated)</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> Maintenance 1 Tahun</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> Perjanjian Hukum</li>
+                        </ul>
+                        <button class="w-full py-4 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-900 hover:text-white transition">Diskusi Proyek</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+                <section id="contact" class="py-32 px-6 bg-slate-100 dark:bg-slate-900">
+                    <div class="max-w-5xl mx-auto bg-white dark:bg-slate-800 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white dark:border-slate-700">
+                        <div class="md:w-1/2 p-12 md:p-16 bg-slate-900 text-white flex flex-col justify-between">
+                            <div>
+                                <h2 class="text-4xl font-black mb-6 leading-tight">Mulai Proyek <br>Anda Sekarang.</h2>
+                                <p class="text-slate-400 mb-10 leading-relaxed">Isi detail kebutuhan Anda dan tim kami akan merespon dalam waktu maksimal 2 jam.</p>
+                                
+                                <div class="space-y-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-slate-900"><i class="fas fa-phone"></i></div>
+                                        <span class="font-bold">+62 82125156854</span>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-slate-900"><i class="fas fa-envelope"></i></div>
+                                        <span class="font-bold">support@proelite.com</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 p-12 md:p-16">
+                            <form @submit.prevent="submitToWA()" class="space-y-5">
+                                <input type="text" x-model="orderData.name" placeholder="Nama Anda" class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none outline-none focus:ring-2 focus:ring-accent transition" required>
+                                <select x-model="orderData.service" class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none outline-none focus:ring-2 focus:ring-accent transition appearance-none">
+                                    <option>IT & Development</option>
+                                    <option>Creative Design</option>
+                                    <option>Professional Consulting</option>
+                                    <option>Layanan Lainnya</option>
+                                </select>
+                                <textarea x-model="orderData.desc" placeholder="Detail Kebutuhan Jasa" rows="4" class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none outline-none focus:ring-2 focus:ring-accent transition" required></textarea>
+                                <button type="submit" class="w-full py-5 bg-accent text-slate-900 font-extrabold rounded-2xl shadow-xl shadow-accent/20 hover:scale-[1.02] transition active:scale-95">Kirim Ke WhatsApp</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+        <footer class="py-16 px-6 border-t border-slate-100 dark:border-slate-800 text-center">
+            <div class="max-w-7xl mx-auto">
+                <span class="text-xl font-black uppercase italic mb-8 block tracking-tighter">Pro<span class="text-accent">Elite</span></span>
+                <div class="flex justify-center gap-8 mb-8 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                    <a href="#" class="hover:text-accent">Visi</a>
+                    <a href="#" class="hover:text-accent">Partner</a>
+                    <a href="#" class="hover:text-accent">Legalitas</a>
+                </div>
+                <p class="text-slate-400 text-[10px] tracking-widest uppercase">&copy; 2026 ProElite Authority. All Rights Reserved.</p>
+            </div>
+        </footer>
+
+        <a href="https://wa.me/6282125156854" target="_blank" class="fixed bottom-10 right-10 w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center text-3xl shadow-2xl z-[100] hover:scale-110 transition active:scale-90 animate-bounce">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, once: true });
+
+        function luxoraApp() {
+            return {
+                isLoggedIn: false,
+                isLoading: false,
+                isDark: false,
+                isScrolled: false,
+                mobileMenu: false,
+                loginName: '',
+                captcha: false,
+                orderData: {
+                    name: '',
+                    service: 'IT & Development',
+                    desc: ''
+                },
+
+                init() {
+                    window.addEventListener('scroll', () => {
+                        this.isScrolled = window.scrollY > 50;
+                    });
+                },
+
+                handleLogin() {
+                    this.isLoading = true;
+                    setTimeout(() => {
+                        this.isLoading = false;
+                        this.isLoggedIn = true;
+                        this.orderData.name = this.loginName;
+                    }, 2000);
+                },
+
+                submitToWA() {
+                    const phone = "6282125156854";
+                    const text = `Halo ProElite, saya *${this.orderData.name}*.%0A%0ASaya ingin memesan jasa: *${this.orderData.service}*.%0A%0A*Detail Kebutuhan:*%0A${this.orderData.desc}`;
+                    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+                }
+            }
+        }
+    </script>
+</body>
+</html> 
